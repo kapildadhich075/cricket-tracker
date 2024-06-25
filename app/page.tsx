@@ -39,15 +39,18 @@ const queryClient = new QueryClient();
 const Home = () => {
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
 
-  const { data: allMatches = [] } = useQuery<Match[]>({
+  const { data: allMatches = [], isLoading: allMatchesLoading } = useQuery<
+    Match[]
+  >({
     queryKey: ["matches"],
     queryFn: () => fetchMatches("http://localhost:4000/matches"),
   });
 
-  const { data: currentMatches = [] } = useQuery<Match[]>({
-    queryKey: ["currentMatches"],
-    queryFn: () => fetchMatches("http://localhost:4000/current-matches"),
-  });
+  const { data: currentMatches = [], isLoading: currentMatchesLoading } =
+    useQuery<Match[]>({
+      queryKey: ["currentMatches"],
+      queryFn: () => fetchMatches("http://localhost:4000/current-matches"),
+    });
 
   useEffect(() => {
     const socket = io("http://localhost:4000");
@@ -102,27 +105,49 @@ const Home = () => {
         <h2 className="text-2xl font-semibold mb-2 text-green-600">
           Current Matches
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          {currentMatches.map((match) => (
-            <MatchCard
-              key={match.id}
-              match={match}
-              onClick={() => handleMatchCardClick(match)}
-            />
-          ))}
-        </div>
+        {currentMatchesLoading ? (
+          <div className="flex justify-center mb-6">
+            <div
+              className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full border-red-600"
+              role="status"
+            >
+              <span className="sr-only">Loading...</span>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            {currentMatches.map((match) => (
+              <MatchCard
+                key={match.id}
+                match={match}
+                onClick={() => handleMatchCardClick(match)}
+              />
+            ))}
+          </div>
+        )}
         <h2 className="text-2xl font-semibold mb-2 text-red-600">
           All Matches
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {allMatches.map((match) => (
-            <MatchCard
-              key={match.id}
-              match={match}
-              onClick={() => handleMatchCardClick(match)}
-            />
-          ))}
-        </div>
+        {allMatchesLoading ? (
+          <div className="flex justify-center">
+            <div
+              className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full border-red-600"
+              role="status"
+            >
+              <span className="sr-only">Loading...</span>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {allMatches.map((match) => (
+              <MatchCard
+                key={match.id}
+                match={match}
+                onClick={() => handleMatchCardClick(match)}
+              />
+            ))}
+          </div>
+        )}
         {selectedMatch && (
           <MatchModal
             match={selectedMatch}
