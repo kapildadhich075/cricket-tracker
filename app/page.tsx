@@ -43,17 +43,21 @@ const Home = () => {
     Match[]
   >({
     queryKey: ["matches"],
-    queryFn: () => fetchMatches("http://localhost:4000/matches"),
+    queryFn: () =>
+      fetchMatches("https://cricket-tracker-backend.onrender.com/matches"),
   });
 
   const { data: currentMatches = [], isLoading: currentMatchesLoading } =
     useQuery<Match[]>({
       queryKey: ["currentMatches"],
-      queryFn: () => fetchMatches("http://localhost:4000/current-matches"),
+      queryFn: () =>
+        fetchMatches(
+          "https://cricket-tracker-backend.onrender.com/current-matches"
+        ),
     });
 
   useEffect(() => {
-    const socket = io("http://localhost:4000");
+    const socket = io("https://cricket-tracker-backend.onrender.com");
 
     socket.on("match-updated", (updatedMatch: Match) => {
       queryClient.setQueryData<Match[]>(["matches"], (oldData = []) => {
